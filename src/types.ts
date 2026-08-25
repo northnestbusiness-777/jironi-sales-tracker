@@ -68,5 +68,10 @@ export interface AppState {
   entries: LedgerEntry[];
   /** propertyId -> normalized description -> categoryId (remembered corrections) */
   corrections: Record<string, Record<string, string>>;
-  apiKey: string;
 }
+
+/**
+ * Shape of an exported/imported backup file. Deliberately excludes the API
+ * key: credentials never travel inside backup files in either direction.
+ */
+export type BackupData = Omit<AppState, "apiKey">;
