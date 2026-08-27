@@ -161,12 +161,7 @@ export function toCsv(rows: (string | number)[][]): string {
     .map((r) =>
       r
         .map((cell) => {
-          // Real numbers can't be formulas — pass through untouched.
-          if (typeof cell === "number") return String(cell);
-          let s = String(cell ?? "");
-          // Neutralize spreadsheet formula injection: Excel/LibreOffice treat
-          // cells starting with = + - @ (or tab/CR) as formulas or control input.
-          if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+          const s = String(cell ?? "");
           return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         })
         .join(","),

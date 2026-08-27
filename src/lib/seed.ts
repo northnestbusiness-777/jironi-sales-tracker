@@ -99,5 +99,6 @@ export function seedState(): AppState {
     reports: [],
     entries: [],
     corrections: {},
+    apiKey: "",
   };
 }

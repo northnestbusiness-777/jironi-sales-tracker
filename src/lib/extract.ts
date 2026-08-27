@@ -1,9 +1,8 @@
 import { PaymentMode } from "@/types";
 
 const MODEL = "gemini-2.0-flash";
-// The key travels in the x-goog-api-key header (see extractDSR) — never in the
-// URL, where proxies and logging tools would capture it.
-const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const ENDPOINT = (key: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(key)}`;
 
 export interface RawAmounts {
   btc: number;
@@ -126,12 +125,9 @@ export async function extractDSR(
     generationConfig: { temperature: 0, response_mime_type: "application/json" },
   };
 
-  const res = await fetch(ENDPOINT, {
+  const res = await fetch(ENDPOINT(apiKey), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": apiKey,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 

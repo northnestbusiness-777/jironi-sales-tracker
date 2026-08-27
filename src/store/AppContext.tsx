@@ -1,19 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   AppState,
-  BackupData,
   Category,
   DailyReport,
   LedgerEntry,
   Property,
 } from "@/types";
-import {
-  clearState,
-  loadSessionKey,
-  loadState,
-  saveSessionKey,
-  saveState,
-} from "@/lib/storage";
+import { clearState, loadState, saveState } from "@/lib/storage";
 import { seedCategories, seedState } from "@/lib/seed";
 import { normDesc } from "@/lib/categorize";
 import { uid } from "@/lib/utils";
@@ -31,8 +24,6 @@ interface ReportArgs {
 
 interface AppCtx {
   state: AppState;
-  /** Session-only Gemini API key — never persisted to localStorage or backups. */
-  apiKey: string;
   setApiKey: (k: string) => void;
   addProperty: (name: string) => void;
   renameProperty: (id: string, name: string) => void;
@@ -45,14 +36,13 @@ interface AppCtx {
   deleteReport: (id: string) => void;
   learnCorrection: (propertyId: string, desc: string, categoryId: string) => void;
   resetAll: () => void;
-  importState: (s: BackupData) => void;
+  importState: (s: AppState) => void;
 }
 
 const Ctx = createContext<AppCtx | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(() => loadState() ?? seedState());
-  const [apiKey, setApiKeyState] = useState<string>(() => loadSessionKey());
 
   useEffect(() => {
     saveState(state);
@@ -60,13 +50,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const value: AppCtx = {
     state,
-    apiKey,
 
-    setApiKey: (k) => {
-      const trimmed = k.trim();
-      saveSessionKey(trimmed);
-      setApiKeyState(trimmed);
-    },
+    setApiKey: (k) => setState((p) => ({ ...p, apiKey: k.trim() })),
 
     addProperty: (name) =>
       setState((p) => {
@@ -187,9 +172,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setState(seedState());
     },
 
-    // Backups are validated upstream and carry no credentials, so importing
-    // can never swap in an attacker-chosen API key.
-    importState: (s) => setState(() => ({ ...s })),
+    importState: (s) => setState(s),
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

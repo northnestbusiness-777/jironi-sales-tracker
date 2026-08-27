@@ -1,20 +1,6 @@
 import { useRef, useState } from "react";
-import {
-  Check,
-  Download,
-  Eye,
-  EyeOff,
-  KeyRound,
-  LockKeyhole,
-  Pencil,
-  Plus,
-  RotateCcw,
-  Trash2,
-  Upload,
-  X,
-} from "lucide-react";
+import { Check, Download, Eye, EyeOff, KeyRound, Pencil, Plus, RotateCcw, Trash2, Upload, X } from "lucide-react";
 import { useApp } from "@/store/AppContext";
-import { useLock } from "@/store/LockContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,27 +16,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CategorySide } from "@/types";
-import { download, isValidBackup } from "@/lib/storage";
+import { AppState, CategorySide } from "@/types";
+import { download } from "@/lib/storage";
 import { showSuccess, showError } from "@/utils/toast";
 
 export default function Settings() {
-  const {
-    state,
-    apiKey,
-    setApiKey,
-    addProperty,
-    renameProperty,
-    addCategory,
-    updateCategory,
-    deleteCategory,
-    resetAll,
-    importState,
-  } = useApp();
-  const { pinEnabled, lockNow, enablePin, changePin, disablePin } = useLock();
+  const { state, setApiKey, addProperty, renameProperty, addCategory, updateCategory, deleteCategory, resetAll, importState } =
+    useApp();
   const importRef = useRef<HTMLInputElement>(null);
 
-  const [keyDraft, setKeyDraft] = useState(apiKey);
+  const [keyDraft, setKeyDraft] = useState(state.apiKey);
   const [showKey, setShowKey] = useState(false);
   const [newProp, setNewProp] = useState("");
   const [dictPid, setDictPid] = useState(state.properties[0]?.id ?? "");
@@ -58,31 +33,12 @@ export default function Settings() {
   const [editName, setEditName] = useState("");
   const [editKeywords, setEditKeywords] = useState("");
   const [newCat, setNewCat] = useState({ name: "", side: "expense" as CategorySide, keywords: "" });
-  const [pinMode, setPinMode] = useState<"off" | "set" | "change">("off");
-  const [pinDraft, setPinDraft] = useState("");
 
   const dictCats = state.categories.filter((c) => c.propertyId === dictPid);
 
   const saveKey = () => {
     setApiKey(keyDraft);
-    showSuccess(
-      keyDraft.trim()
-        ? "API key saved for this session (cleared when the tab closes)."
-        : "API key cleared.",
-    );
-  };
-
-  const commitPin = () => {
-    const pin = pinDraft.trim();
-    if (pin.length < 4) {
-      showError("Use at least 4 characters for the PIN.");
-      return;
-    }
-    if (pinMode === "set") enablePin(pin);
-    else changePin(pin);
-    setPinMode("off");
-    setPinDraft("");
-    showSuccess(pinMode === "set" ? "App lock enabled." : "PIN updated.");
+    showSuccess(keyDraft ? "API key saved." : "API key cleared.");
   };
 
   const startEdit = (c: { id: string; name: string; keywords: string[] }) => {
@@ -118,19 +74,14 @@ export default function Settings() {
 
   const onImport = async (file: File) => {
     try {
-      const parsed: unknown = JSON.parse(await file.text());
-      if (!isValidBackup(parsed)) throw new Error("bad shape");
-      // Safety net: snapshot current data first so an import is reversible.
-      download(
-        `ledger-backup-before-import-${new Date().toISOString().slice(0, 10)}.json`,
-        JSON.stringify(state, null, 2),
-        "application/json",
-      );
+      const parsed = JSON.parse(await file.text()) as AppState;
+      if (!Array.isArray(parsed.properties) || !Array.isArray(parsed.categories))
+        throw new Error("bad shape");
       importState(parsed);
       setDictPid(parsed.properties[0]?.id ?? "");
-      showSuccess("Backup restored — your API key was left unchanged.");
+      showSuccess("Backup restored.");
     } catch {
-      showError("That file doesn't look like a valid Ledger backup.");
+      showError("That file doesn't look like a Ledger backup.");
     }
   };
 
@@ -195,7 +146,7 @@ export default function Settings() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Your records stay in this browser — turn on the app lock below on shared devices.
+          Everything is stored privately in this browser.
         </p>
       </div>
 
@@ -236,113 +187,9 @@ export default function Settings() {
             >
               aistudio.google.com/apikey
             </a>
-            . The key is kept for this browsing session only (cleared when you close the
-            tab), is sent to Google solely inside a request header when extracting
-            photos, and is never included in backups.
+            . The key never leaves this browser except to call Google's API when you
+            extract a photo.
           </p>
-        </CardContent>
-      </Card>
-
-      {/* App lock */}
-      <Card className="rounded-2xl shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 font-display text-base">
-            <LockKeyhole size={16} className="text-primary" /> App lock
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">
-            Require a PIN before your books can be viewed on this device, with auto-lock
-            after 5 minutes of inactivity. Recommended for shared front-desk computers.
-          </p>
-          {pinEnabled ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" className="rounded-xl" onClick={lockNow}>
-                <LockKeyhole size={15} /> Lock now
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-xl"
-                onClick={() => {
-                  setPinMode(pinMode === "change" ? "off" : "change");
-                  setPinDraft("");
-                }}
-              >
-                Change PIN
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="rounded-xl border-red-200 text-destructive hover:bg-red-50 hover:text-destructive"
-                  >
-                    Turn off
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="rounded-2xl">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="font-display">
-                      Turn off app lock?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Anyone opening this site on this device will see your financial
-                      records straight away.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      onClick={() => {
-                        disablePin();
-                        showSuccess("App lock turned off.");
-                      }}
-                    >
-                      Turn off
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => {
-                setPinMode("set");
-                setPinDraft("");
-              }}
-            >
-              <LockKeyhole size={15} /> Enable PIN lock
-            </Button>
-          )}
-          {(pinMode === "set" || pinMode === "change") && (
-            <div className="flex flex-wrap items-center gap-2">
-              <Input
-                type="password"
-                inputMode="numeric"
-                autoFocus
-                value={pinDraft}
-                onChange={(e) => setPinDraft(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && commitPin()}
-                placeholder="New PIN (min 4 characters)"
-                className="tabular max-w-xs rounded-xl"
-              />
-              <Button className="rounded-xl" onClick={commitPin}>
-                Save PIN
-              </Button>
-              <Button
-                variant="ghost"
-                className="rounded-xl"
-                onClick={() => {
-                  setPinMode("off");
-                  setPinDraft("");
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -474,10 +321,8 @@ export default function Settings() {
             variant="outline"
             className="rounded-xl"
             onClick={() => {
-              // The API key lives in sessionStorage only, so it is never part of
-              // a backup file — safe to share or move between devices.
               download("ledger-backup.json", JSON.stringify(state, null, 2), "application/json");
-              showSuccess("Backup downloaded (without your API key).");
+              showSuccess("Backup downloaded.");
             }}
           >
             <Download size={15} /> Export backup

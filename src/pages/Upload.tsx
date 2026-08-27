@@ -6,7 +6,6 @@ import {
   KeyRound,
   Loader2,
   PencilLine,
-  ShieldAlert,
   Sparkles,
   X,
 } from "lucide-react";
@@ -32,7 +31,7 @@ import { showError, showSuccess } from "@/utils/toast";
 const STEPS = ["Details", "Photo", "Review"];
 
 export default function Upload() {
-  const { state, apiKey, createDraft } = useApp();
+  const { state, createDraft } = useApp();
   const nav = useNavigate();
   const [search] = useSearchParams();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -87,7 +86,7 @@ export default function Upload() {
   };
 
   const runExtract = async (list: File[]) => {
-    if (!apiKey) {
+    if (!state.apiKey) {
       showError("Add your Gemini API key in Settings first.");
       return;
     }
@@ -102,7 +101,7 @@ export default function Upload() {
           list.length > 1 ? `Reading photo ${i + 1} of ${list.length}…` : "Reading the report…",
         );
         const dataUrl = await resizeImage(list[i]);
-        const r = await extractDSR(apiKey, dataUrl);
+        const r = await extractDSR(state.apiKey, dataUrl);
         allRows = allRows.concat(r.rows);
         if (r.cashInHand) cash = r.cashInHand;
         if (r.printedCreditTotal) pc = r.printedCreditTotal;
@@ -212,7 +211,7 @@ export default function Upload() {
             </div>
           </div>
 
-          {!apiKey && (
+          {!state.apiKey && (
             <div className="flex flex-col gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 sm:flex-row sm:items-center">
               <AlertTriangle size={18} className="shrink-0 text-amber-700" />
               <p className="flex-1 text-sm text-amber-900">
@@ -254,18 +253,6 @@ export default function Upload() {
               e.target.value = "";
             }}
           />
-
-          {/* Third-party transmission disclosure */}
-          <div className="flex gap-2.5 rounded-xl border border-sky-200 bg-sky-50 p-3.5">
-            <ShieldAlert size={16} className="mt-0.5 shrink-0 text-sky-700" />
-            <p className="text-xs leading-relaxed text-sky-900">
-              <span className="font-medium">Photos leave this device:</span> DSR images
-              are sent to Google's Gemini API purely to read the figures off the page
-              and are not stored by this app. For sensitive pages, use{" "}
-              <span className="font-medium">Enter manually</span> instead, and crop out
-              any guest or staff personal details before photographing.
-            </p>
-          </div>
 
           {files.length > 0 && (
             <ul className="space-y-1.5">
