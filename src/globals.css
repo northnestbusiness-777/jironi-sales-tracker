@@ -4,74 +4,89 @@
 
 @layer base {
   :root {
-    --background: 42 43% 97%;
-    --foreground: 190 35% 12%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 190 35% 12%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 190 35% 12%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 173 58% 24%;
-    --primary-foreground: 42 43% 97%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 44 30% 91%;
-    --secondary-foreground: 190 30% 16%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 44 25% 93%;
-    --muted-foreground: 190 10% 38%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 44 40% 90%;
-    --accent-foreground: 190 30% 16%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 68% 44%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 40 18% 86%;
-    --input: 40 18% 84%;
-    --ring: 173 58% 28%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 42 43% 97%;
-    --sidebar-foreground: 190 20% 25%;
-    --sidebar-primary: 173 58% 24%;
-    --sidebar-primary-foreground: 42 43% 97%;
-    --sidebar-accent: 44 30% 91%;
-    --sidebar-accent-foreground: 190 30% 16%;
-    --sidebar-border: 40 18% 86%;
-    --sidebar-ring: 173 58% 28%;
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 190 30% 8%;
-    --foreground: 42 30% 95%;
-    --card: 190 25% 11%;
-    --card-foreground: 42 30% 95%;
-    --popover: 190 25% 11%;
-    --popover-foreground: 42 30% 95%;
-    --primary: 172 55% 45%;
-    --primary-foreground: 190 40% 8%;
-    --secondary: 190 20% 18%;
-    --secondary-foreground: 42 30% 95%;
-    --muted: 190 20% 18%;
-    --muted-foreground: 42 10% 65%;
-    --accent: 190 20% 18%;
-    --accent-foreground: 42 30% 95%;
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 190 18% 22%;
-    --input: 190 18% 22%;
-    --ring: 172 55% 45%;
-    --sidebar-background: 190 25% 11%;
-    --sidebar-foreground: 42 20% 90%;
-    --sidebar-primary: 172 55% 45%;
-    --sidebar-primary-foreground: 190 40% 8%;
-    --sidebar-accent: 190 20% 18%;
-    --sidebar-accent-foreground: 42 30% 95%;
-    --sidebar-border: 190 18% 22%;
-    --sidebar-ring: 172 55% 45%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -80,29 +95,7 @@
     @apply border-border;
   }
 
-  html {
-    -webkit-tap-highlight-color: transparent;
-  }
-
   body {
     @apply bg-background text-foreground;
-    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   }
-}
-
-.font-display {
-  font-family: "Fraunces", Georgia, serif;
-  letter-spacing: -0.01em;
-}
-
-.tabular {
-  font-variant-numeric: tabular-nums;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
